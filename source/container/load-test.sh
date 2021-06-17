@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# ran dos2unix - carriage return is causing error starting up container.
 # set a uuid for the results xml file name in S3
 UUID=$(cat /proc/sys/kernel/random/uuid)
 
