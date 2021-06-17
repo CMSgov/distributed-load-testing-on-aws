@@ -48,6 +48,7 @@ process.env = {
 	SCENARIOS_BUCKET: 'mock-bucket',
 	SUBNET_A: 'mock-subnet-a',
 	SUBNET_B: 'mock-subnet-b',
+	SUBNET_C: 'mock-subnet-c',
 	TASK_DEFINITION: 'mock-task-definition',
 	TASK_CLUSTER: 'mock-cluster',
 	TASK_SECURITY_GROUP: 'mock-security-group',
@@ -80,7 +81,8 @@ const mockParam = {
 			securityGroups: [ process.env.TASK_SECURITY_GROUP ],
 			subnets: [
 				process.env.SUBNET_A,
-				process.env.SUBNET_B
+				process.env.SUBNET_B,
+				process.env.SUBNET_C
 			]
 		}
 	},

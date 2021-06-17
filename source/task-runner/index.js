@@ -42,7 +42,8 @@ exports.handler = async (event, context) => {
                 securityGroups: [ process.env.TASK_SECURITY_GROUP ],
                 subnets: [
                     process.env.SUBNET_A,
-                    process.env.SUBNET_B
+                    process.env.SUBNET_B,
+                    process.env.SUBNET_C
                 ]
             }
         },
