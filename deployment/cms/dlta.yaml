@@ -25,20 +25,20 @@ Parameters:
     AllowedPattern: '^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
     ConstraintDescription: "Admin email must be a valid email address"
   VpcId:
-    Type: String
-    Default: vpc-0565a143484757b07
+    Type: AWS::EC2::VPC::Id
+    # Default: vpc-0565a143484757b07
     Description: VPC ID
   SubnetIdA:
-    Type: String
-    Default: subnet-0cbe779d27bf5766d # Private subnet A
+    Type: AWS::EC2::Subnet::Id
+    # Default: subnet-0cbe779d27bf5766d # Private subnet A
     Description: Subnet ID for Availability Zone A    
   SubnetIdB:
-    Type: String
-    Default: subnet-07cac89314877fcf0 # Private subnet B  
+    Type: AWS::EC2::Subnet::Id
+    # Default: subnet-07cac89314877fcf0 # Private subnet B  
     Description: Subnet ID for Availability Zone B
   SubnetIdC:
-    Type: String
-    Default: subnet-0eee55a2271888248 # Private subnet C
+    Type: AWS::EC2::Subnet::Id
+    # Default: subnet-0eee55a2271888248 # Private subnet C
     Description: Subnet ID for Availability Zone C   
   ### Removed VpcCidrBlock, SubnetACidrBlock, SubnetBCidrBlock, EgressCidr, and DockerHubSecret
   ### - VPC and Subnet values are imported from the setup stack. 
@@ -56,6 +56,11 @@ Parameters:
     Type: CommaDelimitedList
     Description: List of IP ranges that are allowed to access the solution. 
     Default: "52.5.212.71/32, 52.20.26.200/32, 34.196.35.156/32"
+  # Adding IAM Role Path needed for different permission sets in CMS AWS
+  IAMRolePath:
+    Type: String
+    Description: The path the IAM roles will be created under
+    Default: /delegatedadmin/developer/
 Metadata:
   ### Removed parameters that are not in use
   ### Added custom parameters
@@ -77,6 +82,10 @@ Metadata:
           default: "Web ACL settings (Optional)"
         Parameters:
           - WhiteListIPs
+      - Label:
+          default: "IAM Role Path"
+        Parameters:
+         - IAMRolePath
 Mappings:
   ### Removed the mappings that are not in use
   Solution:
@@ -222,6 +231,8 @@ Resources:
   LambdaApiRole:
     Type: AWS::IAM::Role
     Properties:
+      Path: !Ref IAMRolePath
+      PermissionsBoundary: !Sub "arn:${AWS::Partition}:iam::${AWS::AccountId}:policy/cms-cloud-admin/developer-boundary-policy"
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -276,6 +287,8 @@ Resources:
   LambdaTaskRole:
     Type: AWS::IAM::Role
     Properties:
+      Path: !Ref IAMRolePath
+      PermissionsBoundary: !Sub "arn:${AWS::Partition}:iam::${AWS::AccountId}:policy/cms-cloud-admin/developer-boundary-policy"
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -325,6 +338,8 @@ Resources:
   LambdaTaskCancelerRole:
     Type: AWS::IAM::Role
     Properties:
+      Path: !Ref IAMRolePath
+      PermissionsBoundary: !Sub "arn:${AWS::Partition}:iam::${AWS::AccountId}:policy/cms-cloud-admin/developer-boundary-policy"
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -363,6 +378,8 @@ Resources:
   LambdaTaskStatusRole:
     Type: AWS::IAM::Role
     Properties:
+      Path: !Ref IAMRolePath
+      PermissionsBoundary: !Sub "arn:${AWS::Partition}:iam::${AWS::AccountId}:policy/cms-cloud-admin/developer-boundary-policy"
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -395,6 +412,8 @@ Resources:
   LambdaEcrCheckerRole:
     Type: AWS::IAM::Role
     Properties:
+      Path: !Ref IAMRolePath
+      PermissionsBoundary: !Sub "arn:${AWS::Partition}:iam::${AWS::AccountId}:policy/cms-cloud-admin/developer-boundary-policy"
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -423,6 +442,8 @@ Resources:
   LambdaResultsRole:
     Type: AWS::IAM::Role
     Properties:
+      Path: !Ref IAMRolePath
+      PermissionsBoundary: !Sub "arn:${AWS::Partition}:iam::${AWS::AccountId}:policy/cms-cloud-admin/developer-boundary-policy"
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -449,6 +470,8 @@ Resources:
   LambdaCustomRole:
     Type: AWS::IAM::Role
     Properties:
+      Path: !Ref IAMRolePath
+      PermissionsBoundary: !Sub "arn:${AWS::Partition}:iam::${AWS::AccountId}:policy/cms-cloud-admin/developer-boundary-policy"
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -479,6 +502,8 @@ Resources:
   EcsTaskExecutionRole:
     Type: AWS::IAM::Role
     Properties:
+      Path: !Ref IAMRolePath
+      PermissionsBoundary: !Sub "arn:${AWS::Partition}:iam::${AWS::AccountId}:policy/cms-cloud-admin/developer-boundary-policy"
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -492,6 +517,8 @@ Resources:
   ContainerCodeBuildRole:
     Type: AWS::IAM::Role
     Properties:
+      Path: !Ref IAMRolePath
+      PermissionsBoundary: !Sub "arn:${AWS::Partition}:iam::${AWS::AccountId}:policy/cms-cloud-admin/developer-boundary-policy"
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -544,6 +571,8 @@ Resources:
   ContainerCodePipelineRole:
     Type: AWS::IAM::Role
     Properties:
+      Path: !Ref IAMRolePath
+      PermissionsBoundary: !Sub "arn:${AWS::Partition}:iam::${AWS::AccountId}:policy/cms-cloud-admin/developer-boundary-policy"
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -1249,6 +1278,8 @@ Resources:
   ApiLoggingRole:
     Type: AWS::IAM::Role
     Properties:
+      Path: !Ref IAMRolePath
+      PermissionsBoundary: !Sub "arn:${AWS::Partition}:iam::${AWS::AccountId}:policy/cms-cloud-admin/developer-boundary-policy"
       AssumeRolePolicyDocument:
         Statement:
           - Effect: Allow
@@ -1504,6 +1535,8 @@ Resources:
   CognitoAuthorizedRole:
     Type: AWS::IAM::Role
     Properties:
+      Path: !Ref IAMRolePath
+      PermissionsBoundary: !Sub "arn:${AWS::Partition}:iam::${AWS::AccountId}:policy/cms-cloud-admin/developer-boundary-policy"
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -1530,6 +1563,8 @@ Resources:
   CognitoUnAuthorizedRole:
     Type: AWS::IAM::Role
     Properties:
+      Path: !Ref IAMRolePath
+      PermissionsBoundary: !Sub "arn:${AWS::Partition}:iam::${AWS::AccountId}:policy/cms-cloud-admin/developer-boundary-policy"
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -1805,6 +1840,8 @@ Resources:
   TaskRunnerStepFunctionsRole:
     Type: AWS::IAM::Role
     Properties:
+      Path: !Ref IAMRolePath
+      PermissionsBoundary: !Sub "arn:${AWS::Partition}:iam::${AWS::AccountId}:policy/cms-cloud-admin/developer-boundary-policy"
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -1814,7 +1851,7 @@ Resources:
                 - states.amazonaws.com
             Action:
               - sts:AssumeRole
-      Path: /service-role/
+      #Path: /service-role/
       Policies:
         - PolicyName: StepFunctionPolicy
           PolicyDocument:
