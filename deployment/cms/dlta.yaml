@@ -639,7 +639,8 @@ Resources:
       Tags:
         - Key: SolutionId
           Value: !FindInMap [Solution, Config, SolutionId]
-
+        - Key: component
+          Value: DLTA
   EcsSecurityGroupIngress:
     Type: AWS::EC2::SecurityGroupIngress
     Properties: 
@@ -731,6 +732,8 @@ Resources:
       Tags:
         - Key: SolutionId
           Value: !FindInMap [Solution, Config, SolutionId]
+        - Key: component
+          Value: DLTA          
 
   ScenariosBucketPolicy:
    Type: AWS::S3::BucketPolicy
@@ -771,6 +774,8 @@ Resources:
       Tags:
         - Key: SolutionId
           Value: !FindInMap [Solution, Config, SolutionId]
+        - Key: component
+          Value: DLTA      
     Metadata:
       cfn_nag:
         rules_to_suppress:
@@ -795,6 +800,8 @@ Resources:
       Tags:
         - Key: SolutionId
           Value: !FindInMap [Solution, Config, SolutionId]
+        - Key: component
+          Value: DLTA             
     Metadata:
       cfn_nag:
         rules_to_suppress:
@@ -826,6 +833,8 @@ Resources:
       Tags:
         - Key: SolutionId
           Value: !FindInMap [Solution, Config, SolutionId]
+        - Key: component
+          Value: DLTA             
 
   ScenariosTable:
     Type: AWS::DynamoDB::Table
@@ -842,6 +851,8 @@ Resources:
       Tags:
         - Key: SolutionId
           Value: !FindInMap [Solution, Config, SolutionId]
+        - Key: component
+          Value: DLTA             
     Metadata:
       cfn_nag:
         rules_to_suppress:
@@ -922,6 +933,8 @@ Resources:
       Tags:
         - Key: SolutionId
           Value: !FindInMap [Solution, Config, SolutionId]
+        - Key: component
+          Value: DLTA             
     Metadata:
       cfn_nag:
         rules_to_suppress:
@@ -943,10 +956,8 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub ${AWS::StackName}-codebuild-sg
-        - Key: cms-cloud-component
-          Value: dlta
-        - Key: cms-cloud-environment
-          Value: impl
+        - Key: component
+          Value: DLTA             
 
   ContainerCodeBuild:
     Type: AWS::CodeBuild::Project
@@ -998,6 +1009,8 @@ Resources:
       Tags:
         - Key: SolutionId
           Value: !FindInMap [Solution, Config, SolutionId]
+        - Key: component
+          Value: DLTA             
 
   ContainerCodePipeline:
     #wait for the container
@@ -1040,6 +1053,8 @@ Resources:
       Tags:
         - Key: SolutionId
           Value: !FindInMap [Solution, Config, SolutionId]
+        - Key: component
+          Value: DLTA             
 
 ## Lambda
   CustomResource:
@@ -1062,6 +1077,8 @@ Resources:
       Tags:
         - Key: SolutionId
           Value: !FindInMap [Solution, Config, SolutionId]
+        - Key: component
+          Value: DLTA             
     Metadata:
       cfn_nag:
         rules_to_suppress:
@@ -1099,6 +1116,8 @@ Resources:
       Tags:
         - Key: SolutionId
           Value: !FindInMap [Solution, Config, SolutionId]
+        - Key: component
+          Value: DLTA             
     Metadata:
       cfn_nag:
         rules_to_suppress:
@@ -1132,6 +1151,8 @@ Resources:
       Tags:
         - Key: SolutionId
           Value: !FindInMap [Solution, Config, SolutionId]
+        - Key: component
+          Value: DLTA             
     Metadata:
       cfn_nag:
         rules_to_suppress:
@@ -1171,6 +1192,8 @@ Resources:
       Tags:
         - Key: SolutionId
           Value: !FindInMap [Solution, Config, SolutionId]
+        - Key: component
+          Value: DLTA             
     Metadata:
       cfn_nag:
         rules_to_suppress:
@@ -1202,6 +1225,8 @@ Resources:
       Tags:
         - Key: SolutionId
           Value: !FindInMap [Solution, Config, SolutionId]
+        - Key: component
+          Value: DLTA             
     Metadata:
       cfn_nag:
         rules_to_suppress:
@@ -1233,6 +1258,8 @@ Resources:
       Tags:
         - Key: SolutionId
           Value: !FindInMap [Solution, Config, SolutionId]
+        - Key: component
+          Value: DLTA             
     Metadata:
       cfn_nag:
         rules_to_suppress:
@@ -1264,6 +1291,8 @@ Resources:
       Tags:
         - Key: SolutionId
           Value: !FindInMap [Solution, Config, SolutionId]
+        - Key: component
+          Value: DLTA             
     Metadata:
       cfn_nag:
         rules_to_suppress:
@@ -1305,6 +1334,8 @@ Resources:
       Tags:
         - Key: SolutionId
           Value: !FindInMap [Solution, Config, SolutionId]
+        - Key: component
+          Value: DLTA             
 
   ApiAccountConfig:
     Type: AWS::ApiGateway::Account
@@ -1530,6 +1561,8 @@ Resources:
       Tags:
         - Key: SolutionId
           Value: !FindInMap [Solution, Config, SolutionId]
+        - Key: component
+          Value: DLTA             
 
 ## Cognito
   CognitoAuthorizedRole:
@@ -1826,6 +1859,8 @@ Resources:
       Tags:
         - Key: SolutionId
           Value: !FindInMap [Solution, Config, SolutionId]
+        - Key: component
+          Value: DLTA             
 
   StepFunctionsLogGroup:
     Type: AWS::Logs::LogGroup
@@ -1968,10 +2003,8 @@ Resources:
             MetricName: dlta-webacl-rule-0
             SampledRequestsEnabled: true              
       Tags: 
-        - Key: cms-cloud-component
-          Value: dlta
-        - Key: cms-cloud-environment
-          Value: impl     
+        - Key: component
+          Value: DLTA      
       VisibilityConfig: 
         CloudWatchMetricsEnabled: true
         MetricName: dlta-webacl
