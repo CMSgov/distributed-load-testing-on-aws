@@ -25,37 +25,32 @@ Parameters:
     AllowedPattern: '^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
     ConstraintDescription: "Admin email must be a valid email address"
   VpcId:
-    Type: String
-    Default: vpc-0565a143484757b07
+    Type: AWS::EC2::VPC::Id
     Description: VPC ID
   SubnetIdA:
-    Type: String
-    Default: subnet-0cbe779d27bf5766d # Private subnet A
+    Type: AWS::EC2::Subnet::Id
     Description: Subnet ID for Availability Zone A    
   SubnetIdB:
-    Type: String
-    Default: subnet-07cac89314877fcf0 # Private subnet B  
+    Type: AWS::EC2::Subnet::Id
     Description: Subnet ID for Availability Zone B
   SubnetIdC:
-    Type: String
-    Default: subnet-0eee55a2271888248 # Private subnet C
+    Type: AWS::EC2::Subnet::Id
     Description: Subnet ID for Availability Zone C   
-  ### Removed VpcCidrBlock, SubnetACidrBlock, SubnetBCidrBlock, EgressCidr, and DockerHubSecret
-  ### - VPC and Subnet values are imported from the setup stack. 
-  ### - EgressCidr is hard coded.
-  ### - DockerHubSecret is not needed as docker container is downloaded from the Artifactory.
-  
-  ### Added Version and WhiteListIPs
-  ### - Version is used to find the path in the installation bucket.
-  ### - WhiteListIPs are used in WebACL.
-  # Version:
-  #  Type: String
-  #  Default: 1.3
-  #  Description: Code Version
   WhiteListIPs:
     Type: CommaDelimitedList
     Description: List of IP ranges that are allowed to access the solution. 
     Default: "52.5.212.71/32, 52.20.26.200/32, 34.196.35.156/32"
+  # Due to the limitation that CLOUDFRONT WAFv2 is supported in us-east-1 region only,
+  # WebACL Arn must be copied over from the DLTA WAF stack to this stack in us-west-2.
+  # NOTE: Stack cannot be referenced cross-regionally, meaning importvalue does not work between two stacks in different regions.
+  WebACLArn:
+    Type: String
+    Description: This parameter is required for the implementation in us-west-2
+  # Adding IAM Role Path needed for different permission sets in CMS AWS
+  IAMRolePath:
+    Type: String
+    Description: The path the IAM roles will be created under
+    Default: /delegatedadmin/developer/
 Metadata:
   ### Removed parameters that are not in use
   ### Added custom parameters
@@ -74,9 +69,14 @@ Metadata:
           - SubnetIdB
           - SubnetIdC
       - Label:
+          default: "IAM Role Path"
+        Parameters:
+         - IAMRolePath
+      - Label:
           default: "Web ACL settings (Optional)"
         Parameters:
           - WhiteListIPs
+          - WebACLArn
 Mappings:
   ### Removed the mappings that are not in use
   Solution:
@@ -92,6 +92,12 @@ Conditions:
     - !Equals 
       - !Select [ "0", !Ref WhiteListIPs ]
       - ''
+  IsRegionUSEast1: !Equals
+    - !Ref AWS::Region
+    - 'us-east-1'
+  CreateWAFv2: !And
+    - !Condition WhiteListIPProvided
+    - !Condition IsRegionUSEast1
 Resources:
 ## Roles and Permissions
   CloudWatchLogsPolicy:
@@ -222,6 +228,8 @@ Resources:
   LambdaApiRole:
     Type: AWS::IAM::Role
     Properties:
+      Path: !Ref IAMRolePath
+      PermissionsBoundary: !Sub "arn:${AWS::Partition}:iam::${AWS::AccountId}:policy/cms-cloud-admin/developer-boundary-policy"
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -276,6 +284,8 @@ Resources:
   LambdaTaskRole:
     Type: AWS::IAM::Role
     Properties:
+      Path: !Ref IAMRolePath
+      PermissionsBoundary: !Sub "arn:${AWS::Partition}:iam::${AWS::AccountId}:policy/cms-cloud-admin/developer-boundary-policy"
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -325,6 +335,8 @@ Resources:
   LambdaTaskCancelerRole:
     Type: AWS::IAM::Role
     Properties:
+      Path: !Ref IAMRolePath
+      PermissionsBoundary: !Sub "arn:${AWS::Partition}:iam::${AWS::AccountId}:policy/cms-cloud-admin/developer-boundary-policy"
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -363,6 +375,8 @@ Resources:
   LambdaTaskStatusRole:
     Type: AWS::IAM::Role
     Properties:
+      Path: !Ref IAMRolePath
+      PermissionsBoundary: !Sub "arn:${AWS::Partition}:iam::${AWS::AccountId}:policy/cms-cloud-admin/developer-boundary-policy"
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -395,6 +409,8 @@ Resources:
   LambdaEcrCheckerRole:
     Type: AWS::IAM::Role
     Properties:
+      Path: !Ref IAMRolePath
+      PermissionsBoundary: !Sub "arn:${AWS::Partition}:iam::${AWS::AccountId}:policy/cms-cloud-admin/developer-boundary-policy"
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -423,6 +439,8 @@ Resources:
   LambdaResultsRole:
     Type: AWS::IAM::Role
     Properties:
+      Path: !Ref IAMRolePath
+      PermissionsBoundary: !Sub "arn:${AWS::Partition}:iam::${AWS::AccountId}:policy/cms-cloud-admin/developer-boundary-policy"
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -449,6 +467,8 @@ Resources:
   LambdaCustomRole:
     Type: AWS::IAM::Role
     Properties:
+      Path: !Ref IAMRolePath
+      PermissionsBoundary: !Sub "arn:${AWS::Partition}:iam::${AWS::AccountId}:policy/cms-cloud-admin/developer-boundary-policy"
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -479,6 +499,8 @@ Resources:
   EcsTaskExecutionRole:
     Type: AWS::IAM::Role
     Properties:
+      Path: !Ref IAMRolePath
+      PermissionsBoundary: !Sub "arn:${AWS::Partition}:iam::${AWS::AccountId}:policy/cms-cloud-admin/developer-boundary-policy"
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -492,6 +514,8 @@ Resources:
   ContainerCodeBuildRole:
     Type: AWS::IAM::Role
     Properties:
+      Path: !Ref IAMRolePath
+      PermissionsBoundary: !Sub "arn:${AWS::Partition}:iam::${AWS::AccountId}:policy/cms-cloud-admin/developer-boundary-policy"
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -544,6 +568,8 @@ Resources:
   ContainerCodePipelineRole:
     Type: AWS::IAM::Role
     Properties:
+      Path: !Ref IAMRolePath
+      PermissionsBoundary: !Sub "arn:${AWS::Partition}:iam::${AWS::AccountId}:policy/cms-cloud-admin/developer-boundary-policy"
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -610,7 +636,8 @@ Resources:
       Tags:
         - Key: SolutionId
           Value: !FindInMap [Solution, Config, SolutionId]
-
+        - Key: component
+          Value: DLTA
   EcsSecurityGroupIngress:
     Type: AWS::EC2::SecurityGroupIngress
     Properties: 
@@ -702,6 +729,8 @@ Resources:
       Tags:
         - Key: SolutionId
           Value: !FindInMap [Solution, Config, SolutionId]
+        - Key: component
+          Value: DLTA          
 
   ScenariosBucketPolicy:
    Type: AWS::S3::BucketPolicy
@@ -742,6 +771,8 @@ Resources:
       Tags:
         - Key: SolutionId
           Value: !FindInMap [Solution, Config, SolutionId]
+        - Key: component
+          Value: DLTA      
     Metadata:
       cfn_nag:
         rules_to_suppress:
@@ -766,6 +797,8 @@ Resources:
       Tags:
         - Key: SolutionId
           Value: !FindInMap [Solution, Config, SolutionId]
+        - Key: component
+          Value: DLTA             
     Metadata:
       cfn_nag:
         rules_to_suppress:
@@ -797,6 +830,8 @@ Resources:
       Tags:
         - Key: SolutionId
           Value: !FindInMap [Solution, Config, SolutionId]
+        - Key: component
+          Value: DLTA             
 
   ScenariosTable:
     Type: AWS::DynamoDB::Table
@@ -813,6 +848,8 @@ Resources:
       Tags:
         - Key: SolutionId
           Value: !FindInMap [Solution, Config, SolutionId]
+        - Key: component
+          Value: DLTA             
     Metadata:
       cfn_nag:
         rules_to_suppress:
@@ -889,10 +926,12 @@ Resources:
             Locations:
               - US
             RestrictionType: whitelist
-        WebACLId: !GetAtt WebACL.Arn
+        WebACLId: !If [ CreateWAFv2, !GetAtt WebACLCF.Arn, !Ref WebACLArn]
       Tags:
         - Key: SolutionId
           Value: !FindInMap [Solution, Config, SolutionId]
+        - Key: component
+          Value: DLTA             
     Metadata:
       cfn_nag:
         rules_to_suppress:
@@ -914,10 +953,8 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub ${AWS::StackName}-codebuild-sg
-        - Key: cms-cloud-component
-          Value: dlta
-        - Key: cms-cloud-environment
-          Value: impl
+        - Key: component
+          Value: DLTA             
 
   ContainerCodeBuild:
     Type: AWS::CodeBuild::Project
@@ -969,6 +1006,8 @@ Resources:
       Tags:
         - Key: SolutionId
           Value: !FindInMap [Solution, Config, SolutionId]
+        - Key: component
+          Value: DLTA             
 
   ContainerCodePipeline:
     #wait for the container
@@ -1011,6 +1050,8 @@ Resources:
       Tags:
         - Key: SolutionId
           Value: !FindInMap [Solution, Config, SolutionId]
+        - Key: component
+          Value: DLTA             
 
 ## Lambda
   CustomResource:
@@ -1033,6 +1074,8 @@ Resources:
       Tags:
         - Key: SolutionId
           Value: !FindInMap [Solution, Config, SolutionId]
+        - Key: component
+          Value: DLTA             
     Metadata:
       cfn_nag:
         rules_to_suppress:
@@ -1070,6 +1113,8 @@ Resources:
       Tags:
         - Key: SolutionId
           Value: !FindInMap [Solution, Config, SolutionId]
+        - Key: component
+          Value: DLTA             
     Metadata:
       cfn_nag:
         rules_to_suppress:
@@ -1103,6 +1148,8 @@ Resources:
       Tags:
         - Key: SolutionId
           Value: !FindInMap [Solution, Config, SolutionId]
+        - Key: component
+          Value: DLTA             
     Metadata:
       cfn_nag:
         rules_to_suppress:
@@ -1142,6 +1189,8 @@ Resources:
       Tags:
         - Key: SolutionId
           Value: !FindInMap [Solution, Config, SolutionId]
+        - Key: component
+          Value: DLTA             
     Metadata:
       cfn_nag:
         rules_to_suppress:
@@ -1173,6 +1222,8 @@ Resources:
       Tags:
         - Key: SolutionId
           Value: !FindInMap [Solution, Config, SolutionId]
+        - Key: component
+          Value: DLTA             
     Metadata:
       cfn_nag:
         rules_to_suppress:
@@ -1204,6 +1255,8 @@ Resources:
       Tags:
         - Key: SolutionId
           Value: !FindInMap [Solution, Config, SolutionId]
+        - Key: component
+          Value: DLTA             
     Metadata:
       cfn_nag:
         rules_to_suppress:
@@ -1235,6 +1288,8 @@ Resources:
       Tags:
         - Key: SolutionId
           Value: !FindInMap [Solution, Config, SolutionId]
+        - Key: component
+          Value: DLTA             
     Metadata:
       cfn_nag:
         rules_to_suppress:
@@ -1249,6 +1304,8 @@ Resources:
   ApiLoggingRole:
     Type: AWS::IAM::Role
     Properties:
+      Path: !Ref IAMRolePath
+      PermissionsBoundary: !Sub "arn:${AWS::Partition}:iam::${AWS::AccountId}:policy/cms-cloud-admin/developer-boundary-policy"
       AssumeRolePolicyDocument:
         Statement:
           - Effect: Allow
@@ -1274,6 +1331,8 @@ Resources:
       Tags:
         - Key: SolutionId
           Value: !FindInMap [Solution, Config, SolutionId]
+        - Key: component
+          Value: DLTA             
 
   ApiAccountConfig:
     Type: AWS::ApiGateway::Account
@@ -1499,11 +1558,15 @@ Resources:
       Tags:
         - Key: SolutionId
           Value: !FindInMap [Solution, Config, SolutionId]
+        - Key: component
+          Value: DLTA             
 
 ## Cognito
   CognitoAuthorizedRole:
     Type: AWS::IAM::Role
     Properties:
+      Path: !Ref IAMRolePath
+      PermissionsBoundary: !Sub "arn:${AWS::Partition}:iam::${AWS::AccountId}:policy/cms-cloud-admin/developer-boundary-policy"
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -1530,6 +1593,8 @@ Resources:
   CognitoUnAuthorizedRole:
     Type: AWS::IAM::Role
     Properties:
+      Path: !Ref IAMRolePath
+      PermissionsBoundary: !Sub "arn:${AWS::Partition}:iam::${AWS::AccountId}:policy/cms-cloud-admin/developer-boundary-policy"
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -1791,6 +1856,8 @@ Resources:
       Tags:
         - Key: SolutionId
           Value: !FindInMap [Solution, Config, SolutionId]
+        - Key: component
+          Value: DLTA             
 
   StepFunctionsLogGroup:
     Type: AWS::Logs::LogGroup
@@ -1805,6 +1872,8 @@ Resources:
   TaskRunnerStepFunctionsRole:
     Type: AWS::IAM::Role
     Properties:
+      Path: !Ref IAMRolePath
+      PermissionsBoundary: !Sub "arn:${AWS::Partition}:iam::${AWS::AccountId}:policy/cms-cloud-admin/developer-boundary-policy"
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -1814,7 +1883,7 @@ Resources:
                 - states.amazonaws.com
             Action:
               - sts:AssumeRole
-      Path: /service-role/
+      #Path: /service-role/
       Policies:
         - PolicyName: StepFunctionPolicy
           PolicyDocument:
@@ -1901,11 +1970,12 @@ Resources:
       Resource: UUID
 
 ### Added WebACL to block all traffic by default, but allow traffic from CMS Cloud VPN
-  WebACL:
-    Condition: WhiteListIPProvided
+
+  WebACLCF:
+    Condition: CreateWAFv2
     Type: 'AWS::WAFv2::WebACL'
     Properties: 
-      Name: webacl
+      Name: webaclcf
       Description: Web access control list for DLTA	  
       Scope: CLOUDFRONT      
       DefaultAction:       # By default all access is blocked
@@ -1925,30 +1995,86 @@ Resources:
                     Value: AllowActionHeader2Value
           Statement:
             IPSetReferenceStatement: 
-              Arn: !GetAtt WhiteListIPSet.Arn
+              Arn: !GetAtt WhiteListIPSetCF.Arn
           VisibilityConfig: 
             CloudWatchMetricsEnabled: true
-            MetricName: dlta-webacl-rule-0
+            MetricName: dlta-webaclcf-rule-0
             SampledRequestsEnabled: true              
       Tags: 
-        - Key: cms-cloud-component
-          Value: dlta
-        - Key: cms-cloud-environment
-          Value: impl     
+        - Key: component
+          Value: DLTA      
       VisibilityConfig: 
         CloudWatchMetricsEnabled: true
-        MetricName: dlta-webacl
+        MetricName: dlta-webaclcf
         SampledRequestsEnabled: true
-
-  WhiteListIPSet:
-    Condition: WhiteListIPProvided
+               
+  WhiteListIPSetCF:
+    Condition: CreateWAFv2
     Type: 'AWS::WAFv2::IPSet'
     Properties:
       Description: Web ACL White List IP Set
       Name: whitelistipset
       Scope: CLOUDFRONT
       IPAddressVersion: IPV4
-      Addresses: !Ref WhiteListIPs         
+      Addresses: !Ref WhiteListIPs
+
+### For limiting access to API Gateway Endpoint
+
+  WebACLAPI:
+    Condition: WhiteListIPProvided
+    Type: 'AWS::WAFv2::WebACL'
+    Properties: 
+      Name: webaclapi
+      Description: API access control list for DLTA	  
+      Scope: REGIONAL      
+      DefaultAction:       # By default all access is blocked
+        Block:
+          CustomResponse:
+            ResponseCode: 503
+      Rules: 
+        - Name: WhiteListRule
+          Priority: 0        
+          Action: 
+            Allow:
+              CustomRequestHandling:
+                InsertHeaders:
+                  - Name: AllowActionHeader1Name
+                    Value: AllowActionHeader1Value
+                  - Name: AllowActionHeader2Name
+                    Value: AllowActionHeader2Value
+          Statement:
+            IPSetReferenceStatement: 
+              Arn: !GetAtt WhiteListIPSetAPI.Arn
+          VisibilityConfig: 
+            CloudWatchMetricsEnabled: true
+            MetricName: dlta-webaclapi-rule-0
+            SampledRequestsEnabled: true              
+      Tags: 
+        - Key: component
+          Value: DLTA      
+      VisibilityConfig: 
+        CloudWatchMetricsEnabled: true
+        MetricName: dlta-webaclapi
+        SampledRequestsEnabled: true
+
+  WhiteListIPSetAPI:
+    Condition: WhiteListIPProvided
+    Type: 'AWS::WAFv2::IPSet'
+    Properties:
+      Description: Web ACL White List IP Set
+      Name: whitelistipset
+      Scope: REGIONAL
+      IPAddressVersion: IPV4
+      Addresses: !Ref WhiteListIPs
+
+  WebACLAssociation:
+    Condition: WhiteListIPProvided
+    DependsOn: [ ApiDeployment, WebACLAPI]
+    Type: 'AWS::WAFv2::WebACLAssociation'
+    Properties: 
+      ResourceArn: !Sub "arn:aws:apigateway:${AWS::Region}::/restapis/${Api}/stages/prod"
+      WebACLArn: !GetAtt WebACLAPI.Arn
+
 Outputs:
   Console:
     Description: Console URL
