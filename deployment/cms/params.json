@@ -1,0 +1,39 @@
+[
+    {
+      "ParameterKey": "AdminName",
+      "ParameterValue": "REPLACE-ADMIN_NAME"
+    },
+    {
+      "ParameterKey": "AdminEmail",
+      "ParameterValue": "REPLACE-ADMIN_EMAIL"
+    },
+    {
+      "ParameterKey": "VpcId",
+      "ParameterValue": "REPLACE-VPCID"
+    },
+    {
+      "ParameterKey": "SubnetIdA",
+      "ParameterValue": "REPLACE-SUBNETID_A"
+    },
+    {
+      "ParameterKey": "SubnetIdB",
+      "ParameterValue": "REPLACE-SUBNETID_B"
+    },
+    {
+      "ParameterKey": "SubnetIdC",
+      "ParameterValue": "REPLACE-SUBNETID_C"
+    },
+    {
+      "ParameterKey": "IAMRolePath",
+      "ParameterValue": "REPLACE-IAMROLEPATH"
+    },
+    {
+      "ParameterKey": "WhiteListIPs",
+      "ParameterValue": "REPLACE-WHITELISTIPS"
+    },
+    {
+      "ParameterKey": "WebACLArn",
+      "ParameterValue": "REPLACE-WEBACLARN"
+    }
+]
+
