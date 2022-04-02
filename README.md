@@ -2,7 +2,7 @@
 
 The Distributed Load Testing Solution leverages managed, highly available and highly scalable AWS services to effortlessly create and simulate thousands of connected users generating a selected amount of transactions per second. As a result, developers can understand the behavior of their applications at scale and at load to identify any bottleneck problems before they deploy to Production.
 
-## For CMS Only
+## For CMS Cloud 
 This repo contains customized code for CMS.  Latest DLTA yaml files are stored in /deployment/cms directory. 
 
 
