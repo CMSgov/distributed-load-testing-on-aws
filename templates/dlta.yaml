@@ -1,11 +1,10 @@
 # CMS Cloud
-# Date: 3/31/2021
+# Date: 4/25/2021
 # Customization:
-#  - v2.0.1 upgrade
+#  - v2.0.2 upgrade
 
-Description: (SO0062) - Distributed Load Testing on AWS is a reference architecture to perform application load testing at scale. Version v2.0.1
+Description: (SO0062) - Distributed Load Testing on AWS is a reference architecture to perform application load testing at scale. Version v2.0.2
 AWSTemplateFormatVersion: "2010-09-09"
-
 Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
@@ -112,8 +111,8 @@ Parameters:
 Mappings:
   Solution:
     Config:
-      CodeVersion: v2.0.1
-      KeyPrefix: distributed-load-testing-on-aws/v2.0.1
+      CodeVersion: v2.0.2
+      KeyPrefix: distributed-load-testing-on-aws/v2.0.2
       S3Bucket: solutions
       SendAnonymousUsage: "Yes"
       SolutionId: SO0062
@@ -392,7 +391,7 @@ Resources:
     Properties:
       ContainerDefinitions:
         - Essential: true
-          Image: public.ecr.aws/aws-solutions/distributed-load-testing-on-aws-load-tester:v2.0.1
+          Image: public.ecr.aws/aws-solutions/distributed-load-testing-on-aws-load-tester:v2.0.2
           LogConfiguration:
             LogDriver: awslogs
             Options:
@@ -513,8 +512,31 @@ Resources:
         rules_to_suppress:
           - id: W35
             reason: This is the logging bucket, it does not require logging.
-          - id: W51
-            reason: Since the bucket does not allow the public access, it does not require to have bucket policy.
+  DLTCommonResourcesLogsBucketPolicyAA7FFB37:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket:
+        Ref: DLTCommonResourcesLogsBucket48A2774D
+      PolicyDocument:
+        Statement:
+          - Action: s3:*
+            Condition:
+              Bool:
+                aws:SecureTransport: "false"
+            Effect: Deny
+            Principal:
+              AWS: "*"
+            Resource:
+              - Fn::GetAtt:
+                  - DLTCommonResourcesLogsBucket48A2774D
+                  - Arn
+              - Fn::Join:
+                  - ""
+                  - - Fn::GetAtt:
+                        - DLTCommonResourcesLogsBucket48A2774D
+                        - Arn
+                    - /*
+        Version: "2012-10-17"
   DLTCommonResourcesCustomResourceLambdaRole0608CAD2:
     Type: AWS::IAM::Role
     Properties:
@@ -2745,3 +2767,4 @@ Outputs:
       Fn::GetAtt:
         - DLTCommonResourcesUUID2FD025A2
         - UUID
+
