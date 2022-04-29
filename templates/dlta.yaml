@@ -1,16 +1,9 @@
 # CMS Cloud
-# Date: 11/2/2021
+# Date: 3/31/2021
 # Customization:
-#  - Removed parameters, conditions and resouces that create VPC and Subnets
-#  - Added parameter and resources for WAF WebACL
-#       - WebACLArn parameter is for on case DLTA is deployed in the region other than us-east-1
-#       - Created condition CreateWAFv2
-#  - Hardcoded
-#       - EgressCidr to 0.0.0.0/0
-#       - WAF IP Sets to CMS Cloud VPN IPs
-#       - IAM Role Path and Boundary
+#  - v2.0.1 upgrade
 
-Description: (SO0062) - Distributed Load Testing on AWS is a reference architecture to perform application load testing at scale. Version v2.0.0
+Description: (SO0062) - Distributed Load Testing on AWS is a reference architecture to perform application load testing at scale. Version v2.0.1
 AWSTemplateFormatVersion: "2010-09-09"
 
 Metadata:
@@ -75,15 +68,12 @@ Parameters:
     MinLength: 5
   ExistingVPCId:
     Type: AWS::EC2::VPC::Id
-    # AllowedPattern: (?:^$|^vpc-[a-zA-Z0-9-]+)
     Description: Existing VPC ID
   ExistingSubnetA:
     Type: AWS::EC2::Subnet::Id
-    # AllowedPattern: (?:^$|^subnet-[a-zA-Z0-9-]+)
     Description: First exsiting subnet
   ExistingSubnetB:
     Type: AWS::EC2::Subnet::Id
-    # AllowedPattern: (?:^$|^subnet-[a-zA-Z0-9-]+)
     Description: Second exsiting subnet
   WebACLArn:
     Type: String
@@ -122,8 +112,8 @@ Parameters:
 Mappings:
   Solution:
     Config:
-      CodeVersion: v2.0.0
-      KeyPrefix: distributed-load-testing-on-aws/v2.0.0
+      CodeVersion: v2.0.1
+      KeyPrefix: distributed-load-testing-on-aws/v2.0.1
       S3Bucket: solutions
       SendAnonymousUsage: "Yes"
       SolutionId: SO0062
@@ -402,7 +392,7 @@ Resources:
     Properties:
       ContainerDefinitions:
         - Essential: true
-          Image: public.ecr.aws/aws-solutions/distributed-load-testing-on-aws-load-tester:v2.0.0
+          Image: public.ecr.aws/aws-solutions/distributed-load-testing-on-aws-load-tester:v2.0.1
           LogConfiguration:
             LogDriver: awslogs
             Options:
@@ -2443,12 +2433,18 @@ Resources:
                   - s3:GetObject
                 Effect: Allow
                 Resource:
-                  Fn::Join:
+                  - Fn::Join:
                     - ""
                     - - Fn::GetAtt:
                           - DLTTestRunnerStorageDLTScenariosBucketA9290D21
                           - Arn
                       - /public/*
+                  - Fn::Join:
+                      - ""
+                      - - Fn::GetAtt:
+                            - DLTTestRunnerStorageDLTScenariosBucketA9290D21
+                            - Arn
+                        - /cloudWatchImages/*
             Version: "2012-10-17"
           PolicyName: InvokeApiPolicy
   DLTCognitoAuthDLTCognitoUnauthorizedRole6FC43D42:
@@ -2718,13 +2714,11 @@ Resources:
         - 54.86.8.83/32
   DLTAWAFWebACLAssociation:
     Condition: CreateWAFv2
-    DependsOn: [ DLTApiDeployment098FF8886f7513fc05d0ec41147a211bea1fef76, DLTAWAFWebACLAPI]
+    DependsOn: [ DLTApiDeployment098FF8886f7513fc05d0ec41147a211bea1fef76, DLTAWAFWebACLAPI,DLTApi0C903EB5]
     Type: 'AWS::WAFv2::WebACLAssociation'
     Properties: 
       ResourceArn: !Sub "arn:aws:apigateway:${AWS::Region}::/restapis/${DLTApi0C903EB5}/stages/prod"
       WebACLArn: !GetAtt DLTAWAFWebACLAPI.Arn
-   
-  
 Outputs:
   DLTApiEndpointD98B09AC:
     Value:
