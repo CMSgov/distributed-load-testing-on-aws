@@ -2686,7 +2686,6 @@ Resources:
         - 3.215.42.28/32
         - 54.86.8.83/32        
   DLTAWAFWebACLAPI:
-    Condition: CreateWAFv2
     Type: 'AWS::WAFv2::WebACL'
     Properties: 
       Name: webaclapi
@@ -2723,7 +2722,6 @@ Resources:
         SampledRequestsEnabled: true
 
   DLTAWAFWhiteListIPSetAPI:
-    Condition: CreateWAFv2
     Type: 'AWS::WAFv2::IPSet'
     Properties:
       Description: Web ACL White List IP Set
@@ -2738,7 +2736,6 @@ Resources:
         - 3.215.42.28/32
         - 54.86.8.83/32
   DLTAWAFWebACLAssociation:
-    Condition: CreateWAFv2
     DependsOn: [ DLTApiDeployment098FF8886f7513fc05d0ec41147a211bea1fef76, DLTAWAFWebACLAPI,DLTApi0C903EB5]
     Type: 'AWS::WAFv2::WebACLAssociation'
     Properties: 
