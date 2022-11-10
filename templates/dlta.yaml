@@ -2681,7 +2681,10 @@ Resources:
       Addresses: # Hardcoded to CMS VPN IPs
         - 52.5.212.71/32
         - 52.20.26.200/32
-        - 34.196.35.156/32      
+        - 34.196.35.156/32
+        - 34.225.217.125/32
+        - 3.215.42.28/32
+        - 54.86.8.83/32        
   DLTAWAFWebACLAPI:
     Condition: CreateWAFv2
     Type: 'AWS::WAFv2::WebACL'

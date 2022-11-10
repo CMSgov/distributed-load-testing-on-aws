@@ -6,7 +6,7 @@ Parameters:
   WhiteListIPs:
     Type: CommaDelimitedList
     Description: List of IP ranges that are allowed to access the solution. 
-    Default: "52.5.212.71/32, 52.20.26.200/32, 34.196.35.156/32"
+    Default: "52.5.212.71/32, 52.20.26.200/32, 34.196.35.156/32, 34.225.217.125/32, 3.215.42.28/32, 54.86.8.83/32"
 
 Conditions:
   WhiteListIPProvided: !Not 
