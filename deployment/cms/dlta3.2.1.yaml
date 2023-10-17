@@ -1,5 +1,5 @@
 # CMS Cloud
-# Date: 5/2/2023
+# Date: 5/4/2023
 # Customization:
 #  - v3.2.1 upgrade
 Description: (SO0062) - Distributed Load Testing on AWS is a reference architecture to perform application load testing at scale. Version v3.2.1
@@ -18,17 +18,7 @@ Metadata:
           - ExistingVPCId
           - ExistingSubnetA
           - ExistingSubnetB
-      # - Label:
-          # default: For region us-west-2
-        # Parameters:
-          # - WebACLArn
-      # - Label:
-          # default: Or have the solution create a new AWS Fargate VPC
-        # Parameters:
-          # - VpcCidrBlock
-          # - SubnetACidrBlock
-          # - SubnetBCidrBlock
-          # - EgressCidr
+
     ParameterLabels:
       AdminName:
         default: "* Console Administrator Name"
@@ -40,16 +30,7 @@ Metadata:
         default: "The ID of a Private (or Container) subnet within the existing VPC."
       ExistingSubnetB:
         default: "The ID of a Private (or Container) subnet within the existing VPC."
-      # WebACLArn:
-        # default: "The ARN of WebACL."         
-      # VpcCidrBlock:
-        # default: AWS Fargate VPC CIDR Block
-      # SubnetACidrBlock:
-        # default: AWS Fargate Subnet A CIDR Block
-      # SubnetBCidrBlock:
-        # default: AWS Fargate Subnet A CIDR Block
-      # EgressCidr:
-        # default: AWS Fargate SecurityGroup CIDR Block
+
 Parameters:
   AdminName:
     Type: String
@@ -99,7 +80,6 @@ Conditions:
           - Config
           - SendAnonymousUsage
       - "No"
-
 Resources:
 
   DLTCommonResourcesCloudWatchLogsPolicyB29337B0:
@@ -296,6 +276,10 @@ Resources:
         DefaultRootObject: index.html
         Enabled: true
         HttpVersion: http2
+        WebACLId: 
+          Fn::GetAtt: 
+            - DLTAWAFWebACLCF
+            - Arn  
         IPV6Enabled: true
         Logging:
           Bucket:
@@ -1151,6 +1135,7 @@ Resources:
         Ref: DLTEcsDLTEcsSecurityGroup69E6743C
       IpProtocol: "-1"
       CidrIp: "0.0.0.0/0"
+
       Description: Allow tasks to call out to external resources
   DLTEcsDLTSecGroupIngressFA958E66:
     Type: AWS::EC2::SecurityGroupIngress
@@ -3282,9 +3267,8 @@ Resources:
     Type: AWS::CDK::Metadata
     Properties:
       Analytics: v2:deflate64:H4sIAAAAAAAA/3VUTW/iMBD9Lb0bd2mlSntbSpcKqagIut1jZZwhuDierD+oUJT/vmMnISm0l/h57HkznnmTG17d3fFqfCU+3Ehm+5FWG16tvZB7Nt2apbCiAA82blZBQ1wXoiyVySOcosmUV2gY+b9VIG94RebX5TSersPGgI9oboiD8KPw8CGOiQ2DhxexaTjJoz2beAq+K8D4062eq3eaOIdSiRQ7HoMMVvnjo8VQXhh+5xacuzDPTbLXTImCV0vUSqbUWrTCJre41szd8uo+yD34e+GANTAet6hZepLhvmZSY8i2Fo3n1YNy3qpNSLk/W5UrM5GSEpln9GpKLlU2Osyiw3c3hjQ1y45GFJhR8041TaBmWhSbTPBqFozsyjXES7CFci6xgHSpgVMdXNv1F+H2D7BVRjWBNOZ05wnzU6lPmHrkpFVlvDhTuiW4tFIxPZTbNgdiWwd6HWRsKahLf4Wiuu5QSWAkNTYTSjNSpIcFCUOZRg6D/Rndm6eMHX9Kz56bA+6BiVLljbx4tQLnJ6VKne0h1RcDae4BSo3HTn6DHUXMu9AEyBWDlZDEsAC/wyzNRoO60zZIg1fwL1DAV6FVJjw2M3VmIy2i570GJeZUeOTVHwd2iaij0wl3YKpVm/ClpZNM5zzcR2V/nrfOP65UV7AHaoMUXlDbaewt5FF1xySSSVlSjqcRJKIkR0hiOJvPrghn5s8+dT0oHAkQiy/rSPg5+DL4mo1HQpc7wX9c/Wp/YNdx/Tbv9no1TP0ih9ubjs+hTuNFzPTxNkjvUoB+nEf0X+hn9QXXtzUzmAF/d9eH8R0f/ySyd6fUyJK8VAF81az/Adk7d+l6BQAA
-    # Condition: CDKMetadataAvailable
 
- ### Added WebACL to block all traffic by default, but allow traffic from CMS Cloud VPN and ZScaler
+### Added WebACL to block all traffic by default, but allow traffic from CMS Cloud VPN and ZScaler
   DLTAWAFWebACLCF:
     # Condition: CreateWAFv2
     Type: 'AWS::WAFv2::WebACL'
@@ -3395,7 +3379,6 @@ Resources:
     Properties: 
       ResourceArn: !Sub "arn:aws:apigateway:${AWS::Region}::/restapis/${DLTApi0C903EB5}/stages/prod"
       WebACLArn: !GetAtt DLTAWAFWebACLAPI.Arn
-    
 Outputs:
   DLTApiEndpointD98B09AC:
     Value:
