@@ -1,8 +1,8 @@
 # CMS Cloud MiSP Enterprise Testing Services (ETS)
-# Date: 3/2/2024
+# Date: 7/21/2025
 # Customization:
-#  - v3.2.5 upgrade
-Description: (SO0062) - Distributed Load Testing on AWS is a reference architecture to perform application load testing at scale. Version v3.2.5 Beta
+#  - Upgraded nodejs to v20.x using DLTA 3.2.5 as the base
+Description: (SO0062) - Distributed Load Testing on AWS is a reference architecture to perform application load testing at scale. Version v3.2.5a
 AWSTemplateFormatVersion: "2010-09-09"
 Metadata:
   AWS::CloudFormation::Interface:
